@@ -123,7 +123,7 @@ activity_df %>%
   knitr::kable()
 
 ######## arrange(desc(total_activity)) %>% ######## if using long data #### if not REMOVE !!
-# 
+#   geom_point( alpha = .5)
 ```
 
 The table above shows the total activity count for each day of the week. From this table you are able to see some general trends in activity. It seems like Saturday's are notably days with lower activity count, while Friday's seem to have higher activity counts. 
@@ -131,7 +131,7 @@ The table above shows the total activity count for each day of the week. From th
 ```{r}
 activity_df %>% 
   ggplot(aes( x = minute, y = activity_count, color = day)) + 
-  geom_point( alpha = .5) + 
+ geom_line(size = .5, alpha = 0.8) +
   labs(
     title = "Activity during the Day by Day of the Week",
     x = "Hours of the Day",
@@ -176,7 +176,7 @@ ny_noaa %>%
   filter(month == c(1, 7)) %>% 
   group_by(year, month, id) %>% 
   summarise(mean_tmax = mean(tmax, na.rm = TRUE)) %>% 
-  ggplot(aes(x = year, y = mean_tmax, color = id)) +
+  ggplot(aes(x = year, y = mean_tmax, group = id, color = id)) +
     geom_line(size = 0.1)  +
   facet_grid(.~month, labeller = as_labeller(month_names)) +
   theme(axis.text.x = element_text(angle = 60, hjust = 1), 
@@ -191,6 +191,8 @@ ny_noaa %>%
 The graph above shows the average maximum temperature at each weather station across the monitoring years of 1980 to 2010 for the months of January and July. This figure shows the fluctuating average maximum temperatures across the years. There is more variability in average maximum temperature for the month of January compared to the month of July. There is a notable outlier in July that shows a drop in the average roughly around 1988. There is a peak outlier in January that shows a spike in the average around 2004. 
 
 ```{r}
-
+ny_noaa %>% 
+  ggplot(aes(x = tmin, y = tmax, group = id)) + 
+  geom_point()
 ```
 
