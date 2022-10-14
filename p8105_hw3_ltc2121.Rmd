@@ -146,6 +146,13 @@ The graph above shows the activity count over the 24 hour day for each day in th
 ## Problem 3
 
 ```{r}
+data("ny_noaa")
+```
+
+This dataset contains `r nrow(ny_noaa)` rows and `r ncol(ny_noaa)` columns. Each observation in the dataset is an individual daily reading from one of the New York state weather stations. The weather station readings were taken from `r min(ny_noaa$date)` to `r max(ny_noaa$date)`. The variables key measured from the weather station are precipitation, snowfall, snow depth, maximum temperature, and minimum temperature. There is a notable amount of missing data since not all of the weather stations measure each variable. In total, there are `r ny_noaa %>% mutate(tmax = as.numeric(tmax), tmin = as.numeric(tmin)) %>% pivot_longer(prcp:tmin, names_to = "type", values_to = "amount") %>% filter(is.na(amount)) %>% count()` missing values out of `r ny_noaa %>% mutate(tmax = as.numeric(tmax), tmin = as.numeric(tmin)) %>% pivot_longer(prcp:tmin, names_to = "type", values_to = "amount") %>% select(id, date, type) %>% distinct() %>% count()` values combined from all of the measured variables in the dataset. 
+
+```{r}
 
 ```
+
 
