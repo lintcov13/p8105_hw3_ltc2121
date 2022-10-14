@@ -147,19 +147,50 @@ The graph above shows the activity count over the 24 hour day for each day in th
 
 ```{r}
 data("ny_noaa")
+
 ```
 
-This dataset contains `r nrow(ny_noaa)` rows and `r ncol(ny_noaa)` columns. Each observation in the dataset is an individual daily reading from one of the New York state weather stations. The weather station readings were taken from `r min(ny_noaa$date)` to `r max(ny_noaa$date)`. The variables key measured from the weather station are precipitation, snowfall, snow depth, maximum temperature, and minimum temperature. There is a notable amount of missing data since not all of the weather stations measure each variable. In total, there are `r ny_noaa %>% mutate(tmax = as.numeric(tmax), tmin = as.numeric(tmin)) %>% pivot_longer(prcp:tmin, names_to = "type", values_to = "amount") %>% filter(is.na(amount)) %>% count()` missing values out of `r ny_noaa %>% mutate(tmax = as.numeric(tmax), tmin = as.numeric(tmin)) %>% pivot_longer(prcp:tmin, names_to = "type", values_to = "amount") %>% select(id, date, type) %>% distinct() %>% count()` values combined from all of the measured variables in the dataset. 
+This dataset contains `r nrow(ny_noaa)` rows and `r ncol(ny_noaa)` columns. Each observation in the dataset is an individual daily reading from one of the New York state weather stations. There are `r ny_noaa %>% select(id) %>% distinct %>% count` different weather stations in the dataset. The weather station readings were taken from `r min(ny_noaa$date)` to `r max(ny_noaa$date)`. The variables key measured from the weather station are precipitation, snowfall, snow depth, maximum temperature, and minimum temperature. There is a notable amount of missing data since not all of the weather stations measure each variable. In total, there are `r ny_noaa %>% mutate(tmax = as.numeric(tmax), tmin = as.numeric(tmin)) %>% pivot_longer(prcp:tmin, names_to = "type", values_to = "amount") %>% filter(is.na(amount)) %>% count()` missing values out of `r ny_noaa %>% mutate(tmax = as.numeric(tmax), tmin = as.numeric(tmin)) %>% pivot_longer(prcp:tmin, names_to = "type", values_to = "amount") %>% select(id, date, type) %>% distinct() %>% count()` values combined from all of the measured variables in the dataset. 
 
 ```{r}
-ny_noaa %>% 
+ny_noaa = ny_noaa %>% 
   mutate(year = lubridate::year(date), 
                 month = lubridate::month(date), 
                 day = lubridate::day(date), 
          tmax = as.numeric(tmax),
-         tmin = as.numeric(tmin))
+         tmin = as.numeric(tmin), 
+         tmax = tmax / 10, 
+         tmin = tmin / 10, 
+         prcp = prcp / 10)
 
-Hmisc::describe(ny_noaa$tmax)
+Hmisc::describe(ny_noaa$snow)
 ```
 
+The frequency information above shows that the most commonly observed value for snowfall is 0mm of snow. This is because throughout all of New York, they're are significantly more days in the year of no snow fall compared to days when it is snowing. 
+
+```{r}
+
+month_names <- c(`1` = "January", `7` = "July")
+  
+ny_noaa %>% 
+  filter(month == c(1, 7)) %>% 
+  group_by(year, month, id) %>% 
+  summarise(mean_tmax = mean(tmax, na.rm = TRUE)) %>% 
+  ggplot(aes(x = year, y = mean_tmax, color = id)) +
+    geom_line(size = 0.1)  +
+  facet_grid(.~month, labeller = as_labeller(month_names)) +
+  theme(axis.text.x = element_text(angle = 60, hjust = 1), 
+        legend.position = "none") +
+   labs(
+    title = "Average Max Temperature at Each Weather Station",
+    x = "Year",
+    y = "Average Max Temperature (C)")
+
+```
+
+The graph above shows the average maximum temperature at each weather station across the monitoring years of 1980 to 2010 for the months of January and July. This figure shows the fluctuating average maximum temperatures across the years. There is more variability in average maximum temperature for the month of January compared to the month of July. There is a notable outlier in July that shows a drop in the average roughly around 1988. There is a peak outlier in January that shows a spike in the average around 2004. 
+
+```{r}
+
+```
 
