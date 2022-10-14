@@ -7,6 +7,8 @@ output: github_document
 ```{r, echo = FALSE}
 library(tidyverse)
 library(p8105.datasets)
+library(ggridges)
+library(patchwork)
 
 knitr::opts_chunk$set(
 	echo = TRUE,
@@ -86,5 +88,64 @@ instacart %>%
     names_from = order_dow, 
     values_from = mean_hour) %>% 
   knitr::kable(digits = 2)
+```
+
+## Problem 2 
+
+```{r}
+activity_df = 
+  read_csv("hw3_data/accel_data.csv") %>% 
+  pivot_longer(
+    activity.1:activity.1440,
+    names_to = "minute", 
+    names_prefix = "activity.",
+    values_to = "activity_count"
+  ) %>% 
+  mutate(
+    activity_count = round(activity_count, 2), 
+    day_type = ifelse(day == "Friday", "weekend", 
+                     ifelse(day == "Saturday", "weekend", 
+                            ifelse(day == "Sunday", "weekend", "weekday"))), 
+  minute = as.numeric(minute), 
+  day_type = as.factor(day_type))
+
+```
+
+This dataset contains `r nrow(activity_df)` rows and `r ncol(activity_df)` columns. Each row shows a distinct `activity count` for a given `minute` throughout a given `day` starting at midnight. The dataset spans over `r activity_df %>% select(week) %>% distinct %>% count` weeks and includes `r activity_df %>% select(day_id) %>% distinct %>% count` days of activity monitoring. The dataset also contains a variable that describes if the day constitutes as a weekend or a weekday. 
+
+```{r}
+activity_df %>% 
+  group_by(week, day) %>% 
+  summarise(total_activity = 
+              sum(activity_count)) %>% 
+  mutate(total_activity = round(total_activity, 0)) %>% 
+  pivot_wider(names_from = day, values_from = total_activity ) %>% 
+  knitr::kable()
+
+######## arrange(desc(total_activity)) %>% ######## if using long data #### if not REMOVE !!
+# 
+```
+
+The table above shows the total activity count for each day of the week. From this table you are able to see some general trends in activity. It seems like Saturday's are notably days with lower activity count, while Friday's seem to have higher activity counts. 
+
+```{r}
+activity_df %>% 
+  ggplot(aes( x = minute, y = activity_count, color = day)) + 
+  geom_point( alpha = .5) + 
+  labs(
+    title = "Activity during the Day by Day of the Week",
+    x = "Hours of the Day",
+    y = "Activity Count") + 
+  scale_x_continuous(
+    breaks = c(0, 360, 720, 1080, 1440), 
+    labels = c("0", "6", "12", "18", "24"))
+```
+
+The graph above shows the activity count over the 24 hour day for each day in the dataset. The graph is grouped by day of the week. The graph shows that this individual typically starts their day around 7th-8th hour of the day. It is seen through outlying point that this person is more typical to have deviate from their average activity level on the weekend days. They typically have an increase in activity level between the 20th-22nd hour of the day, especially on Friday's. 
+
+## Problem 3
+
+```{r}
+
 ```
 
