@@ -191,8 +191,25 @@ ny_noaa %>%
 The graph above shows the average maximum temperature at each weather station across the monitoring years of 1980 to 2010 for the months of January and July. This figure shows the fluctuating average maximum temperatures across the years. There is more variability in average maximum temperature for the month of January compared to the month of July. There is a notable outlier in July that shows a drop in the average roughly around 1988. There is a peak outlier in January that shows a spike in the average around 2004. 
 
 ```{r}
-ny_noaa %>% 
-  ggplot(aes(x = tmin, y = tmax, group = id)) + 
-  geom_point()
+noaa_tmin_tmax = ny_noaa %>% 
+  ggplot(aes(x = tmin, y = tmax)) + 
+  geom_hex() + 
+    labs(
+    title = "NY Weather Station Temperatures from 1980 to 2012",
+    x = "Minimum Daily Temperature (C)",
+    y = "Maximum Daily Temperature (C)") + 
+  theme(legend.text = element_text(angle = 65, vjust = 0.6))
+
+noaa_snow_year = ny_noaa %>% 
+  filter(snow %in% 1:99) %>% 
+  ggplot(aes(x = year, y = snow, group = year)) + 
+  geom_boxplot()  + 
+    labs(
+    title = "Distribution of Snowfall by Year",
+    x = "Year",
+    y = "Snowfall (mm)")
+
+noaa_both = noaa_tmin_tmax + noaa_snow_year
+
 ```
 
